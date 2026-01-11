@@ -29,8 +29,11 @@ docker-compose up -d --build
 
 Access the applications
 Main Shell UI: http://localhost:5173
+
 Order MFE: http://localhost:5174
+
 API Gateway: http://localhost:3000
+
 RabbitMQ Management: http://localhost:15672 (Credentials: guest / guest)
 
 Shutdown

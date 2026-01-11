@@ -48,3 +48,10 @@ Order MFE: http://localhost:5174
 API Gateway: http://localhost:3000
 
 RabbitMQ Management: http://localhost:15672 (Credentials: guest / guest)
+
+Shutdown
+To stop and remove all containers and networks created by the application:
+
+Bash
+
+docker-compose down

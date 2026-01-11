@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # --- INFRASTRUCTURE ---
+  
+  # Message Broker (Requirement: Communication)
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"   # Communication port
+      - "15672:15672" # Dashboard (Username: guest, Pass: guest)
+
+  # Scalable WebSockets Backplane (Requirement: Scalability)
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  # Event Streaming (Requirement: Kafka)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  # --- YOUR SERVICES ---
+  # (We will add your Node.js apps here next!)

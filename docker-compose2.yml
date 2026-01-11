@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # --- INFRASTRUCTURE (Pre-made Images) ---
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  # --- YOUR SERVICES (Custom Built from your Dockerfiles) ---
+  gateway:
+    build: ./backend/gateway-api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - rabbitmq
+      - kafka
+
+  user-service:
+    build: ./backend/user-service
+    ports:
+      - "4001:4001"
+
+  order-service:
+    build: ./backend/order-service
+    ports:
+      - "4002:4002"
+    depends_on:
+      - rabbitmq
+      - kafka
+
+  notification-service:
+    build: ./backend/notification-service
+    ports:
+      - "4003:4003"
+    depends_on:
+      - rabbitmq
+      - redis
+
+  # --- YOUR FRONTENDS ---
+  shell-app:
+    build: ./frontend/shell-app
+    ports:
+      - "5173:5173"
+
+  order-app:
+    build: ./frontend/order-app
+    ports:
+      - "5174:5174"
